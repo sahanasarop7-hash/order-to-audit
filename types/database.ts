@@ -1823,6 +1823,16 @@ export type Database = {
         Args: { p_purchase_id: number; p_reason: string }
         Returns: undefined
       }
+      secure_save_bom: {
+        Args: {
+          p_bom_id?: number
+          p_expected_output: number
+          p_is_active?: boolean
+          p_items: Json
+          p_product_id: number
+        }
+        Returns: number
+      }
       secure_save_order: {
         Args: {
           p_customer_id: number
@@ -1856,6 +1866,10 @@ export type Database = {
           p_supplier_id: number
         }
         Returns: number
+      }
+      secure_set_bom_active: {
+        Args: { p_bom_id: number; p_is_active: boolean }
+        Returns: undefined
       }
       secure_stock_period_report: {
         Args: { p_end_date: string; p_start_date: string }

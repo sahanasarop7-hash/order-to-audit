@@ -5,6 +5,7 @@ import {
   Users,
   Truck,
   Boxes,
+  ClipboardList,
 } from "lucide-react";
 
 import { useAuth } from "@/contexts/auth-context";
@@ -21,6 +22,7 @@ import { ProductsTab } from "@/components/masters/products-tab";
 import { CustomersTab } from "@/components/masters/customers-tab";
 import { SuppliersTab } from "@/components/masters/suppliers-tab";
 import { MaterialsTab } from "@/components/masters/materials-tab";
+import { BOMsTab } from "@/components/masters/boms-tab";
 
 export default function MastersPage() {
   const { profile } = useAuth();
@@ -100,7 +102,14 @@ export default function MastersPage() {
               <Boxes size={16} />
               {t("Materials")}
             </TabsTrigger>
-          </TabsList>
+            <TabsTrigger
+                value="boms"
+                className="gap-2 px-4 py-2.5"
+            >
+              <ClipboardList size={16} />
+              {t("Bill of materials")}
+            </TabsTrigger>
+            </TabsList>
         </div>
 
         <TabsContent value="products">
@@ -119,6 +128,10 @@ export default function MastersPage() {
 
         <TabsContent value="materials">
           <MaterialsTab canEdit={isAdmin} />
+        </TabsContent>
+
+        <TabsContent value="boms">
+          <BOMsTab canEdit={isAdmin || role === "production"}/>
         </TabsContent>
       </Tabs>
     </div>

@@ -165,3 +165,64 @@ export async function createBOMVersion(id: number) {
 
   return data;
 }
+export type BOMDetails =
+  Awaited<ReturnType<typeof getBOMs>>[number];
+
+export type BOMMaterialInput = {
+  inventory_item_id: number;
+  planned_quantity: number;
+};
+
+export async function saveBOM(values: {
+  productId: number;
+  expectedOutput: number;
+  items: BOMMaterialInput[];
+  isActive: boolean;
+  bomId?: number;
+}) {
+  const { data, error } = await supabase.rpc(
+    "secure_save_bom",
+    {
+      p_product_id: values.productId,
+      p_expected_output: values.expectedOutput,
+      p_items: values.items,
+      p_is_active: values.isActive,
+      ...(values.bomId !== undefined
+        ? { p_bom_id: values.bomId }
+        : {}),
+    }
+  );
+
+  if (error) throw new Error(error.message);
+
+  return data;
+}
+
+export async function setBOMActive(
+  id: number,
+  active: boolean
+) {
+  const { error } = await supabase.rpc(
+    "secure_set_bom_active",
+    {
+      p_bom_id: id,
+      p_is_active: active,
+    }
+  );
+
+  if (error) throw new Error(error.message);
+}
+
+export async function isBOMUsed(id: number) {
+  const { count, error } = await supabase
+    .from("production_runs")
+    .select("id", {
+      count: "exact",
+      head: true,
+    })
+    .eq("bom_id", id);
+
+  if (error) throw new Error(error.message);
+
+  return (count ?? 0) > 0;
+}
