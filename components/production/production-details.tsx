@@ -1,5 +1,8 @@
-
 "use client";
+
+import { getLocalizedName } from "@/lib/localized-name";
+
+
 
 import { useState } from "react";
 import { CheckCircle, XCircle, Undo2 } from "lucide-react";
@@ -69,7 +72,7 @@ export function ProductionDetailsDialog({
   onClose: () => void;
   onSuccess: () => void;
 }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [action, setAction] =
     useState<ProductionAction | null>(null);
@@ -265,7 +268,7 @@ export function ProductionDetailsDialog({
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-slate-50 p-4">
             <div>
               <p className="font-semibold">
-                {run.boms?.products?.name ?? "—"}
+                {run.boms?.products ? getLocalizedName(run.boms?.products, language) : "—"}
               </p>
 
               <p className="text-sm text-slate-500">
@@ -356,7 +359,7 @@ export function ProductionDetailsDialog({
                     >
                       <td className="p-3">
                         <p className="font-medium">
-                          {item.inventory_items?.name ?? "—"}
+                          {item.inventory_items ? getLocalizedName(item.inventory_items, language) : "—"}
                         </p>
 
                         <p className="text-xs text-slate-500">
@@ -365,7 +368,7 @@ export function ProductionDetailsDialog({
                       </td>
 
                       <td className="p-3">
-                        {item.inventory_items?.unit ?? "—"}
+                        {t(item.inventory_items?.unit ?? "—")}
                       </td>
 
                       <td className="p-3 text-right">

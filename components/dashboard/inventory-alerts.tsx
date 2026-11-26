@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocalizedStockName } from "@/lib/use-localized-stock-name";
 import Link from "next/link";
 import { AlertTriangle, ArrowRight, CheckCircle2 } from "lucide-react";
 
@@ -14,6 +15,7 @@ export function InventoryAlerts({
   alerts: ReorderAlert[];
 }) {
   const { t } = useLanguage();
+  const localizedName = useLocalizedStockName();
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -52,7 +54,7 @@ export function InventoryAlerts({
 
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-slate-900">
-                  {item.item_name}
+                  {localizedName(item.sku, item.item_name, item.category)}
                 </p>
 
                 <p className="mt-1 text-xs text-slate-500">
@@ -61,10 +63,10 @@ export function InventoryAlerts({
 
                 <p className="mt-2 text-sm text-slate-700">
                   {formatNumber(item.available_stock)}
-                  {" "}{item.unit}
+                  {" "}{t(item.unit)}
                   {" / "}
                   {formatNumber(item.reorder_level)}
-                  {" "}{item.unit}
+                  {" "}{t(item.unit)}
                 </p>
               </div>
 

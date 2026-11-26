@@ -1,4 +1,6 @@
 "use client";
+import { useLanguage } from "@/contexts/language-context";
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
@@ -23,6 +25,7 @@ import { BRAND } from "@/lib/brand";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const { profile, loading, error: authError, signOut } = useAuth();
 
   const [email, setEmail] = useState("");
@@ -76,25 +79,24 @@ export default function LoginPage() {
 
         <div className="relative z-10 max-w-lg">
           <p className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">
-            Your connected workspace
+            {t("Your connected workspace")}
           </p>
 
           <h1 className="text-5xl font-bold leading-tight tracking-tight xl:text-6xl">
-            Every operation.
+            {t("Every operation.")}
             <span className="block text-indigo-400">
-              One system.
+              {t("One system.")}
             </span>
           </h1>
 
           <p className="mt-6 text-lg leading-relaxed text-slate-400">
-            Simplify manufacturing, manage sales and stay
-            ready for every audit.
+            {t("Simplify manufacturing, manage sales and stay ready for every audit.")}
           </p>
 
           <div className="mt-10 space-y-5">
             {features.map((feature) => (
               <div
-                key={feature}
+                key={t(feature)}
                 className="flex items-center gap-3"
               >
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-500/20">
@@ -102,7 +104,7 @@ export default function LoginPage() {
                 </div>
 
                 <span className="text-sm text-slate-300">
-                  {feature}
+                  {t(feature)}
                 </span>
               </div>
             ))}
@@ -110,7 +112,7 @@ export default function LoginPage() {
         </div>
 
         <p className="relative z-10 text-xs uppercase tracking-widest text-slate-500">
-          {BRAND.name} · Business Management
+          {BRAND.name} · {t("Business Management")}
         </p>
 
         {/* Decorative background */}
@@ -128,16 +130,17 @@ export default function LoginPage() {
       {/* Login form */}
       <section className="flex flex-col items-center justify-center px-6 py-12 sm:px-12">
         <div className="w-full max-w-md">
+          <div className="mb-4 flex justify-end"><LanguageSwitcher /></div>
           <div className="mb-10 lg:hidden">
             <BrandLogo />
           </div>
 
           <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-            Welcome back
+            {t("Welcome back")}
           </h2>
 
           <p className="mt-2 text-sm text-slate-500">
-            Sign in to your {BRAND.name} workspace.
+            {t("Sign in to your workspace.")}
           </p>
 
           <form
@@ -145,12 +148,12 @@ export default function LoginPage() {
             className="mt-8 space-y-6"
           >
             <div className="space-y-2">
-              <Label htmlFor="email">Email address</Label>
+              <Label htmlFor="email">{t("Email address")}</Label>
 
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter your email address"
+                placeholder={t("Enter your email address")}
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -161,13 +164,13 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("Password")}</Label>
 
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
+                  placeholder={t("Enter your password")}
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -178,11 +181,11 @@ export default function LoginPage() {
 
                 <button
                   type="button"
-                  aria-label={
+                  aria-label={t(
                     showPassword
                       ? "Hide password"
                       : "Show password"
-                  }
+                  )}
                   onClick={() =>
                     setShowPassword(!showPassword)
                   }
@@ -207,7 +210,7 @@ export default function LoginPage() {
                   className="mt-0.5 shrink-0"
                 />
                 <div>
-                  <p>{error || authError}</p>
+                  <p>{t(error || authError || "")}</p>
                   {authError && (
                     <button
                       type="button"
@@ -220,7 +223,7 @@ export default function LoginPage() {
                         }
                       }}
                     >
-                      Clear session
+                      {t("Clear session")}
                     </button>
                   )}
                 </div>
@@ -235,11 +238,11 @@ export default function LoginPage() {
               {submitting || loading || profile ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {submitting ? "Signing in..." : "Please wait..."}
+                  {t(submitting ? "Signing in..." : "Please wait...")}
                 </>
               ) : (
                 <>
-                  Sign in
+                  {t("Sign in")}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </>
               )}
@@ -247,12 +250,12 @@ export default function LoginPage() {
           </form>
 
           <p className="mt-6 text-center text-sm text-slate-500">
-            Need access? Contact your administrator.
+            {t("Need access? Contact your administrator.")}
           </p>
 
           <div className="mt-12 flex items-center justify-center gap-2 text-xs text-slate-400">
             <ShieldCheck size={15} />
-            Secure, role-based workspace
+            {t("Secure, role-based workspace")}
           </div>
         </div>
       </section>

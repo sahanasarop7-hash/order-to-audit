@@ -1,3 +1,5 @@
+"use client";
+import { useLanguage } from "@/contexts/language-context";
 import type { LucideIcon } from "lucide-react";
 
 type KPICardProps = {
@@ -23,11 +25,12 @@ export function KPICard({
   description,
   tone = "indigo",
 }: KPICardProps) {
+  const { t } = useLanguage();
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
       <div className="flex items-start justify-between gap-3">
         <p className="text-sm font-medium text-slate-500">
-          {title}
+          {t(title)}
         </p>
 
         <div className={`rounded-lg p-2.5 ${tones[tone]}`}>
@@ -41,7 +44,7 @@ export function KPICard({
 
       {description && (
         <p className="mt-2 text-xs leading-relaxed text-slate-500">
-          {description}
+          {t(description)}
         </p>
       )}
     </div>

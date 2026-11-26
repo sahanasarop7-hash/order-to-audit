@@ -1,4 +1,5 @@
 "use client";
+import { getLocalizedName } from "@/lib/localized-name";
 
 import { useEffect, useState } from "react";
 import { Plus, Trash2, AlertTriangle } from "lucide-react";
@@ -46,7 +47,7 @@ export function OrderForm({
   onSuccess: () => void;
   onCancel: () => void;
 }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -283,7 +284,7 @@ export function OrderForm({
                   key={customer.id}
                   value={customer.id}
                 >
-                  {customer.name} — {customer.state}
+                  {customer.name} — {t(customer.state)}
                 </option>
               ))}
           </MasterSelect>
@@ -429,7 +430,7 @@ export function OrderForm({
                         key={item.id}
                         value={item.id}
                       >
-                        {item.name} — {item.sku}
+                        {item ? getLocalizedName(item, language) : "—"} — {item.sku}
                       </option>
                     ))}
                 </MasterSelect>

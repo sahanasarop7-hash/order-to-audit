@@ -1,5 +1,7 @@
 "use client";
 
+import { useLanguage } from "@/contexts/language-context";
+
 import {
   Loader2,
   Inbox,
@@ -14,6 +16,7 @@ export function LoadingState({
 }: {
   message?: string;
 }) {
+  const { t } = useLanguage();
   return (
     <div
       role="status"
@@ -21,7 +24,7 @@ export function LoadingState({
     >
       <Loader2 className="h-7 w-7 animate-spin text-indigo-600" />
 
-      <p className="text-sm text-slate-500">{message}</p>
+      <p className="text-sm text-slate-500">{t(message)}</p>
     </div>
   );
 }
@@ -33,6 +36,7 @@ export function EmptyState({
   title?: string;
   description?: string;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="flex min-h-48 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
       <div className="mb-4 rounded-full bg-slate-100 p-4">
@@ -40,11 +44,11 @@ export function EmptyState({
       </div>
 
       <h3 className="font-semibold text-slate-900">
-        {title}
+        {t(title)}
       </h3>
 
       <p className="mt-2 text-sm text-slate-500">
-        {description}
+        {t(description)}
       </p>
     </div>
   );
@@ -57,6 +61,7 @@ export function ErrorState({
   message: string;
   onRetry?: () => void;
 }) {
+  const { t } = useLanguage();
   return (
     <div
       role="alert"
@@ -65,11 +70,11 @@ export function ErrorState({
       <AlertCircle className="mb-3 h-7 w-7 text-red-600" />
 
       <h3 className="font-semibold text-red-800">
-        Something went wrong
+        {t("Something went wrong")}
       </h3>
 
       <p className="mt-2 text-sm text-red-700">
-        {message}
+        {t(message)}
       </p>
 
       {onRetry && (
@@ -79,7 +84,7 @@ export function ErrorState({
           className="mt-4"
         >
           <RefreshCw className="mr-2 h-4 w-4" />
-          Try again
+          {t("Try again")}
         </Button>
       )}
     </div>

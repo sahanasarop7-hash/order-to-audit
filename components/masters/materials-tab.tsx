@@ -13,6 +13,7 @@ import {
   formatNumber,
 } from "@/lib/format";
 
+import { getLocalizedName } from "@/lib/localized-name";
 import { useLanguage } from "@/contexts/language-context";
 import { StatusBadge } from "@/components/shared/status-badge";
 
@@ -37,6 +38,8 @@ function MaterialForm({
   const { t } = useLanguage();
 
   const [name, setName] = useState(record?.name ?? "");
+  const [nameTa, setNameTa] = useState(record?.name_ta ?? "");
+  const [nameHi, setNameHi] = useState(record?.name_hi ?? "");
   const [sku, setSku] = useState(record?.sku ?? "");
 
   const [category, setCategory] = useState(
@@ -73,6 +76,8 @@ function MaterialForm({
     await saveMaterial(
       {
         name: name.trim(),
+          name_ta: nameTa.trim() || null,
+          name_hi: nameHi.trim() || null,
         sku: sku.trim().toUpperCase(),
         category,
         unit,
@@ -99,7 +104,9 @@ function MaterialForm({
           required
         />
 
-        <MasterField
+        <MasterField label="Tamil name (optional)" value={nameTa} onChange={setNameTa} />
+            <MasterField label="Hindi name (optional)" value={nameHi} onChange={setNameHi} />
+            <MasterField
           label="SKU"
           value={sku}
           onChange={setSku}
@@ -172,7 +179,7 @@ export function MaterialsTab({
 }: {
   canEdit: boolean;
 }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [category, setCategory] = useState("all");
   const [status, setStatus] = useState("all");
@@ -185,7 +192,7 @@ export function MaterialsTab({
       canEdit={canEdit}
       load={getMaterials}
       searchValue={(row) =>
-        `${row.name} ${row.sku} ${row.category} ${row.unit}`
+        `${getLocalizedName(row, language)} ${row.sku} ${row.category} ${row.unit}`
       }
       filterRow={(row) =>
         (category === "all" || row.category === category) &&
@@ -231,10 +238,10 @@ export function MaterialsTab({
           header: t("Material name"),
           render: (row) => (
             <span className="font-medium text-slate-900">
-              {row.name}
+              {getLocalizedName(row, language)}
             </span>
           ),
-          sortValue: (row) => row.name,
+          sortValue: (row) => getLocalizedName(row, language),
         },
         {
           key: "sku",

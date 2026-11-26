@@ -20,6 +20,7 @@ import {
 import { toast } from "sonner";
 
 import { useAuth } from "@/contexts/auth-context";
+import { useLocalizedStockName } from "@/lib/use-localized-stock-name";
 import { useLanguage } from "@/contexts/language-context";
 
 import {
@@ -60,6 +61,7 @@ import { StockAdjustmentForm } from "@/components/inventory/stock-adjustment-for
 export default function InventoryPage() {
   const { profile } = useAuth();
   const { t } = useLanguage();
+  const localizedName = useLocalizedStockName();
 
   const role = profile?.role ?? "";
 
@@ -340,7 +342,7 @@ export default function InventoryPage() {
       header: t("Material"),
       render: (row) => (
         <span className="font-medium">
-          {row.name}
+          {localizedName(row.sku, row.name, "raw_material")}
         </span>
       ),
       sortValue: (row) => row.name ?? "",
@@ -426,7 +428,7 @@ export default function InventoryPage() {
       header: t("Product"),
       render: (row) => (
         <span className="font-medium">
-          {row.name}
+          {localizedName(row.sku, row.name, "finished_goods")}
         </span>
       ),
       sortValue: (row) => row.name ?? "",
@@ -508,7 +510,7 @@ export default function InventoryPage() {
       render: (row) => (
         <div>
           <p className="font-medium">
-            {row.item_name}
+            {localizedName(row.sku, row.item_name, row.category)}
           </p>
 
           <p className="text-xs text-slate-500">
@@ -613,7 +615,7 @@ export default function InventoryPage() {
       header: t("Inventory item"),
       render: (row) => (
         <span className="font-medium">
-          {row.item_name}
+          {localizedName(row.sku, row.item_name, row.category)}
         </span>
       ),
       sortValue: (row) => row.item_name,

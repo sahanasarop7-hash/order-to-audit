@@ -1,5 +1,6 @@
 
 "use client";
+import { useLocalizedStockName } from "@/lib/use-localized-stock-name";
 
 import { useState } from "react";
 
@@ -33,6 +34,7 @@ export function StockAdjustmentForm({
   onCancel: () => void;
 }) {
   const { t } = useLanguage();
+  const localizedName = useLocalizedStockName();
 
   const [itemType, setItemType] =
     useState<"material" | "product">("material");
@@ -184,7 +186,7 @@ export function StockAdjustmentForm({
               key={item.id}
               value={item.id ?? ""}
             >
-              {item.name} ({item.sku})
+              {localizedName(item.sku, item.name, itemType === "product" ? "finished_goods" : "raw_material")} ({item.sku})
             </option>
           ))}
         </MasterSelect>
@@ -198,7 +200,7 @@ export function StockAdjustmentForm({
 
               <p className="font-semibold">
                 {formatNumber(selectedItem.physical)}{" "}
-                {selectedItem.unit}
+                {t(selectedItem.unit)}
               </p>
             </div>
 
@@ -209,7 +211,7 @@ export function StockAdjustmentForm({
 
               <p className="font-semibold">
                 {formatNumber(selectedItem.available)}{" "}
-                {selectedItem.unit}
+                {t(selectedItem.unit)}
               </p>
             </div>
           </div>
@@ -277,7 +279,7 @@ export function StockAdjustmentForm({
                 }`}
               >
                 {formatNumber(projectedStock)}{" "}
-                {selectedItem.unit}
+                {t(selectedItem.unit)}
               </span>
             </div>
           )}

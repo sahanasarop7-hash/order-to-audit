@@ -112,6 +112,8 @@ export async function saveMaterial(
 ) {
   const payload = {
     name: values.name,
+    name_ta: values.name_ta,
+    name_hi: values.name_hi,
     sku: values.sku,
     category: values.category,
     unit: values.unit,
@@ -140,10 +142,10 @@ export async function getBOMs() {
     .from("boms")
     .select(`
       *,
-      products(name, sku),
+      products(name, name_ta, name_hi, sku),
       bom_items(
         *,
-        inventory_items(name, sku, unit)
+        inventory_items(name, name_ta, name_hi, sku, unit)
       )
     `)
     .order("id", { ascending: false });

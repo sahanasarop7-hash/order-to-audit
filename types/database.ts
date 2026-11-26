@@ -506,6 +506,8 @@ export type Database = {
           id: number
           is_active: boolean
           name: string
+          name_hi: string | null
+          name_ta: string | null
           reorder_level: number
           sku: string
           unit: string
@@ -517,6 +519,8 @@ export type Database = {
           id?: never
           is_active?: boolean
           name: string
+          name_hi?: string | null
+          name_ta?: string | null
           reorder_level?: number
           sku: string
           unit: string
@@ -528,6 +532,8 @@ export type Database = {
           id?: never
           is_active?: boolean
           name?: string
+          name_hi?: string | null
+          name_ta?: string | null
           reorder_level?: number
           sku?: string
           unit?: string
@@ -964,6 +970,8 @@ export type Database = {
           id: number
           is_active: boolean
           name: string
+          name_hi: string | null
+          name_ta: string | null
           packet_size_g: number
           packets_per_carton: number | null
           reorder_level: number
@@ -977,6 +985,8 @@ export type Database = {
           id?: never
           is_active?: boolean
           name: string
+          name_hi?: string | null
+          name_ta?: string | null
           packet_size_g: number
           packets_per_carton?: number | null
           reorder_level?: number
@@ -990,6 +1000,8 @@ export type Database = {
           id?: never
           is_active?: boolean
           name?: string
+          name_hi?: string | null
+          name_ta?: string | null
           packet_size_g?: number
           packets_per_carton?: number | null
           reorder_level?: number

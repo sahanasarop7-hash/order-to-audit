@@ -208,7 +208,7 @@ export default function SalesPage() {
           </p>
 
           <p className="text-xs text-slate-500">
-            {order.customers?.state}
+            {t(order.customers?.state ?? "")}
           </p>
         </div>
       ),

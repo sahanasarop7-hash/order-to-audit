@@ -39,6 +39,8 @@ export async function getProductionRuns() {
         products (
           id,
           name,
+          name_ta,
+          name_hi,
           sku,
           selling_price,
           packet_size_g
@@ -49,6 +51,8 @@ export async function getProductionRuns() {
         inventory_items (
           id,
           name,
+          name_ta,
+          name_hi,
           sku,
           category,
           unit,

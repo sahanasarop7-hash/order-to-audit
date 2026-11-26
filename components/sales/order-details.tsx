@@ -1,4 +1,5 @@
 "use client";
+import { getLocalizedName } from "@/lib/localized-name";
 
 import { useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
@@ -51,7 +52,7 @@ export function OrderDetailsDialog({
   onClose: () => void;
   onSuccess: () => void;
 }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [stock, setStock] = useState<ProductStock[]>([]);
   const [stockLoading, setStockLoading] = useState(true);
@@ -310,7 +311,7 @@ export function OrderDetailsDialog({
                     >
                       <td className="p-3">
                         <p className="font-medium">
-                          {item.products?.name ?? "—"}
+                          {item.products ? getLocalizedName(item.products, language) : "—"}
                         </p>
 
                         <p className="text-xs text-slate-500">
@@ -393,7 +394,7 @@ export function OrderDetailsDialog({
                         key={item.id}
                         className="text-sm text-amber-700"
                       >
-                        {item.products?.name}:{" "}
+                        {item.products ? getLocalizedName(item.products, language) : "—"}:{" "}
                         {t("Stock information unavailable.")}
                       </p>
                     );
@@ -414,7 +415,7 @@ export function OrderDetailsDialog({
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-sm font-medium">
-                          {item.products?.name}
+                          {item.products ? getLocalizedName(item.products, language) : "—"}
                         </span>
 
                         {shortage > 0 ? (

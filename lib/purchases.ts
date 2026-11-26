@@ -38,6 +38,8 @@ export async function getPurchases() {
         *,
         inventory_items (
           name,
+          name_ta,
+          name_hi,
           sku,
           category,
           unit

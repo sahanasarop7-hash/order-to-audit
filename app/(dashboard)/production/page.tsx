@@ -1,5 +1,8 @@
-
 "use client";
+
+import { getLocalizedName } from "@/lib/localized-name";
+
+
 
 import {
   useCallback,
@@ -52,7 +55,7 @@ import { ProductionDetailsDialog } from "@/components/production/production-deta
 
 export default function ProductionPage() {
   const { profile } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const role = profile?.role ?? "";
 
@@ -291,7 +294,7 @@ export default function ProductionPage() {
       render: (row) => (
         <div>
           <p className="font-medium">
-            {row.boms?.products?.name ?? "—"}
+            {row.boms?.products ? getLocalizedName(row.boms?.products, language) : "—"}
           </p>
 
           <p className="text-xs text-slate-500">

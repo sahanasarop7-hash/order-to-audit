@@ -1,4 +1,5 @@
 "use client";
+import { getLocalizedName } from "@/lib/localized-name";
 
 import {
   useState,
@@ -58,7 +59,7 @@ function BOMForm({
   onSuccess: () => void;
   onCancel: () => void;
 }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
@@ -356,7 +357,7 @@ function BOMForm({
                     key={product.id}
                     value={product.id}
                   >
-                    {product.name} — {product.sku}
+                    {product ? getLocalizedName(product, language) : "—"} — {product.sku}
                   </option>
                 ))}
             </MasterSelect>
@@ -457,7 +458,7 @@ function BOMForm({
                             key={item.id}
                             value={item.id}
                           >
-                            {item.name} ({item.unit})
+                            {item ? getLocalizedName(item, language) : "—"} ({t(item.unit ?? "—")})
                           </option>
                         ))}
                     </MasterSelect>
@@ -465,7 +466,7 @@ function BOMForm({
                     <MasterField
                       label={
                         material
-                          ? `${t("Planned quantity")} (${material.unit})`
+                          ? `${t("Planned quantity")} (${t(material.unit ?? "—")})`
                           : "Planned quantity"
                       }
                       value={row.quantity}
@@ -511,7 +512,7 @@ export function BOMsTab({
 }: {
   canEdit: boolean;
 }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [status, setStatus] = useState("all");
 
@@ -563,7 +564,7 @@ export function BOMsTab({
           render: (row) => (
             <div>
               <p className="font-medium text-slate-900">
-                {row.products?.name ?? "—"}
+                {row.products ? getLocalizedName(row.products, language) : "—"}
               </p>
               <p className="text-xs text-slate-500">
                 {row.products?.sku}
@@ -602,14 +603,14 @@ export function BOMsTab({
                   className="flex justify-between gap-4 text-xs"
                 >
                   <span>
-                    {item.inventory_items?.name}
+                    {item.inventory_items ? getLocalizedName(item.inventory_items, language) : "—"}
                   </span>
 
                   <span className="font-medium">
                     {formatNumber(
                       item.planned_quantity
                     )}{" "}
-                    {item.inventory_items?.unit}
+                    {t(item.inventory_items?.unit ?? "—")}
                   </span>
                 </div>
               ))}

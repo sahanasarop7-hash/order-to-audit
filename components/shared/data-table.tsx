@@ -1,5 +1,7 @@
 "use client";
 
+import { useLanguage } from "@/contexts/language-context";
+
 import {
   useMemo,
   useState,
@@ -53,6 +55,7 @@ export function DataTable<T>({
   filters,
   pageSize = 10,
 }: DataTableProps<T>) {
+  const { t } = useLanguage();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
@@ -133,20 +136,20 @@ export function DataTable<T>({
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
 
             <Input
-              aria-label="Search records"
+              aria-label={t("Search records")}
               value={search}
               onChange={(event) => {
                 setSearch(event.target.value);
                 setPage(1);
               }}
-              placeholder={searchPlaceholder}
+              placeholder={t(searchPlaceholder)}
               className="h-10 pl-9 pr-9"
             />
 
             {search && (
               <button
                 type="button"
-                aria-label="Clear search"
+                aria-label={t("Clear search")}
                 onClick={() => {
                   setSearch("");
                   setPage(1);
@@ -186,11 +189,11 @@ export function DataTable<T>({
                       onClick={() => handleSort(column.key)}
                       className="inline-flex items-center gap-2 hover:text-indigo-600"
                     >
-                      {column.header}
+                      {t(column.header)}
                       <ArrowUpDown size={13} />
                     </button>
                   ) : (
-                    column.header
+                    t(column.header)
                   )}
                 </TableHead>
               ))}
@@ -204,7 +207,7 @@ export function DataTable<T>({
                   colSpan={columns.length}
                   className="h-32 text-center text-sm text-slate-500"
                 >
-                  No matching records found.
+                  {t("No matching records found.")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -230,18 +233,18 @@ export function DataTable<T>({
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 px-4 py-3">
         <p className="text-xs text-slate-500">
-          Showing{" "}
+          {t("Showing")}{" "}
           {filteredData.length === 0 ? 0 : start + 1}
           –
           {Math.min(start + pageSize, filteredData.length)}
-          {" "}of {filteredData.length} records
+          {" "}{t("of")} {filteredData.length} {t("records")}
         </p>
 
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="icon"
-            aria-label="Previous page"
+            aria-label={t("Previous page")}
             disabled={currentPage === 1}
             onClick={() => setPage(currentPage - 1)}
           >
@@ -255,7 +258,7 @@ export function DataTable<T>({
           <Button
             variant="outline"
             size="icon"
-            aria-label="Next page"
+            aria-label={t("Next page")}
             disabled={currentPage === totalPages}
             onClick={() => setPage(currentPage + 1)}
           >

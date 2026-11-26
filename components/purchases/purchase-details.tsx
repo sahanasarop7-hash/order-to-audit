@@ -1,4 +1,5 @@
 "use client";
+import { getLocalizedName } from "@/lib/localized-name";
 
 import { useState } from "react";
 import {
@@ -68,7 +69,7 @@ export function PurchaseDetailsDialog({
   onClose: () => void;
   onSuccess: () => void;
 }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [action, setAction] =
     useState<PurchaseAction | null>(null);
@@ -282,8 +283,7 @@ export function PurchaseDetailsDialog({
                     >
                       <td className="p-3">
                         <p className="font-medium">
-                          {item.inventory_items?.name ??
-                            "—"}
+                          {item.inventory_items ? getLocalizedName(item.inventory_items, language) : "—"}
                         </p>
 
                         <p className="text-xs text-slate-500">
@@ -303,8 +303,7 @@ export function PurchaseDetailsDialog({
                       </td>
 
                       <td className="p-3">
-                        {item.inventory_items?.unit ??
-                          "—"}
+                        {t(item.inventory_items?.unit ?? "—")}
                       </td>
 
                       <td className="p-3 text-right">

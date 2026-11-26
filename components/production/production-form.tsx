@@ -1,5 +1,8 @@
-
 "use client";
+
+import { getLocalizedName } from "@/lib/localized-name";
+
+
 
 import { useEffect, useState } from "react";
 import { Calculator, AlertTriangle } from "lucide-react";
@@ -85,7 +88,7 @@ export function ProductionForm({
   onSuccess: () => void;
   onCancel: () => void;
 }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [boms, setBoms] =
     useState<BOMDetails[]>([]);
@@ -322,7 +325,7 @@ export function ProductionForm({
 
       return {
         materialId: item.inventory_item_id,
-        name: material?.name ?? "Unknown material",
+        name: material ? getLocalizedName(material, language) : t("Unknown material"),
         sku: material?.sku ?? "",
         baseUnit,
         planned,
@@ -573,7 +576,7 @@ export function ProductionForm({
                 key={product.id}
                 value={product.id}
               >
-                {product.name} ({product.sku})
+                {product ? getLocalizedName(product, language) : "—"} ({product.sku})
               </option>
             ))}
           </MasterSelect>

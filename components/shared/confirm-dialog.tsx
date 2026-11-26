@@ -1,5 +1,7 @@
 "use client";
 
+import { useLanguage } from "@/contexts/language-context";
+
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -32,6 +34,7 @@ export function ConfirmDialog({
   destructive?: boolean;
   onConfirm: () => Promise<void>;
 }) {
+  const { t } = useLanguage();
   const [busy, setBusy] = useState(false);
 
   async function handleConfirm() {
@@ -52,7 +55,7 @@ export function ConfirmDialog({
             ? String(error.message)
             : "Unable to complete the operation.";
 
-      toast.error(message);
+      toast.error(t(message));
     } finally {
       setBusy(false);
     }
@@ -67,10 +70,10 @@ export function ConfirmDialog({
     >
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogTitle>{t(title)}</AlertDialogTitle>
 
           <AlertDialogDescription>
-            {description}
+            {t(description)}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -80,7 +83,7 @@ export function ConfirmDialog({
             disabled={busy}
             onClick={() => onOpenChange(false)}
           >
-            Cancel
+            {t("Cancel")}
           </Button>
 
           <Button
@@ -96,7 +99,7 @@ export function ConfirmDialog({
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
 
-            {busy ? "Processing..." : confirmLabel}
+            {busy ? t("Processing...") : t(confirmLabel)}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -31,6 +31,8 @@ export async function getSalesOrders() {
         *,
         products (
           name,
+          name_ta,
+          name_hi,
           sku,
           packet_size_g,
           packets_per_carton

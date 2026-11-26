@@ -396,7 +396,7 @@ export default function DashboardPage() {
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
                 <div>
                   <p className="text-sm text-amber-800">
-                    Material variance alerts
+                    {t("Material variance alerts")}
                   </p>
 
                   <p className="mt-1 text-xl font-semibold text-amber-900">
@@ -406,7 +406,7 @@ export default function DashboardPage() {
 
                 <div>
                   <p className="text-sm text-amber-800">
-                    Production yield alerts
+                    {t("Production yield alerts")}
                   </p>
 
                   <p className="mt-1 text-xl font-semibold text-amber-900">
@@ -416,7 +416,7 @@ export default function DashboardPage() {
 
                 <div>
                   <p className="text-sm text-amber-800">
-                    Overdue amount
+                    {t("Overdue amount")}
                   </p>
 
                   <p className="mt-1 text-xl font-semibold text-amber-900">

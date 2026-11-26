@@ -1,4 +1,5 @@
 "use client";
+import { getLocalizedName } from "@/lib/localized-name";
 
 import { useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
@@ -75,7 +76,7 @@ export function PurchaseForm({
   onSuccess: () => void;
   onCancel: () => void;
 }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [suppliers, setSuppliers] =
     useState<Supplier[]>([]);
@@ -493,7 +494,7 @@ export function PurchaseForm({
                               String(item.id)
                         )}
                       >
-                        {item.name} ({item.sku})
+                        {item ? getLocalizedName(item, language) : "—"} ({item.sku})
                       </option>
                     ))}
                 </MasterSelect>
@@ -557,7 +558,7 @@ export function PurchaseForm({
                     <p>
                       {t("Base quantity")}:{" "}
                       {baseQuantity.toFixed(3)}{" "}
-                      {material.unit}
+                      {t(material.unit ?? "—")}
                     </p>
 
                     <p>
@@ -565,7 +566,7 @@ export function PurchaseForm({
                       {Number(
                         material.average_unit_cost
                       ).toFixed(3)}{" "}
-                      INR/{material.unit}
+                      INR/{t(material.unit ?? "—")}
                     </p>
                   </div>
                 )}

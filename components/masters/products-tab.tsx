@@ -13,6 +13,7 @@ import {
   formatNumber,
 } from "@/lib/format";
 
+import { getLocalizedName } from "@/lib/localized-name";
 import { useLanguage } from "@/contexts/language-context";
 
 import { MasterSection } from "./master-section";
@@ -46,6 +47,8 @@ function ProductForm({
   const { t } = useLanguage();
 
   const [name, setName] = useState(record?.name ?? "");
+  const [nameTa, setNameTa] = useState(record?.name_ta ?? "");
+  const [nameHi, setNameHi] = useState(record?.name_hi ?? "");
   const [sku, setSku] = useState(record?.sku ?? "");
 
   const [packetSize, setPacketSize] = useState(
@@ -94,6 +97,8 @@ function ProductForm({
       await saveProduct(
         {
           name: name.trim(),
+          name_ta: nameTa.trim() || null,
+          name_hi: nameHi.trim() || null,
           sku: sku.trim().toUpperCase(),
           packet_size_g: Number(packetSize),
           selling_price: Number(price),
@@ -147,6 +152,8 @@ function ProductForm({
               required
             />
 
+            <MasterField label="Tamil name (optional)" value={nameTa} onChange={setNameTa} />
+            <MasterField label="Hindi name (optional)" value={nameHi} onChange={setNameHi} />
             <MasterField
               label="SKU"
               value={sku}
@@ -247,7 +254,7 @@ export function ProductsTab({
 }: {
   canEdit: boolean;
 }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [status, setStatus] = useState("all");
 
   return (
@@ -258,7 +265,7 @@ export function ProductsTab({
       canEdit={canEdit}
       load={getProducts}
       searchValue={(row) =>
-        `${row.name} ${row.sku} ${row.hsn_code ?? ""}`
+        `${getLocalizedName(row, language)} ${row.sku} ${row.hsn_code ?? ""}`
       }
       filterRow={(row) =>
         status === "all" ||
@@ -282,10 +289,10 @@ export function ProductsTab({
           header: t("Product name"),
           render: (row) => (
             <span className="font-medium text-slate-900">
-              {row.name}
+              {getLocalizedName(row, language)}
             </span>
           ),
-          sortValue: (row) => row.name,
+          sortValue: (row) => getLocalizedName(row, language),
         },
         {
           key: "sku",
