@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
-
+import { MozhiAssistant } from "@/components/mozhi/mozhi-assistant";
 
 export default function DashboardLayout({
   children,
@@ -46,6 +46,7 @@ export default function DashboardLayout({
         <main className="min-w-0 p-4 sm:p-6 lg:p-8">
           {children}
         </main>
+        <MozhiAssistant />
       </div>
     </div>
   );
