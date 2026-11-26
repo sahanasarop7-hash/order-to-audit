@@ -1,9 +1,26 @@
 "use client";
 
+import {
+  Package,
+  Users,
+  Truck,
+  Boxes,
+} from "lucide-react";
+
 import { useAuth } from "@/contexts/auth-context";
 import { useLanguage } from "@/contexts/language-context";
 
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+
 import { ProductsTab } from "@/components/masters/products-tab";
+import { CustomersTab } from "@/components/masters/customers-tab";
+import { SuppliersTab } from "@/components/masters/suppliers-tab";
+import { MaterialsTab } from "@/components/masters/materials-tab";
 
 export default function MastersPage() {
   const { profile } = useAuth();
@@ -25,6 +42,16 @@ export default function MastersPage() {
     );
   }
 
+  const isAdmin = role === "admin";
+
+  const canViewCustomers =
+    isAdmin ||
+    role === "accountant" ||
+    role === "owner";
+
+  const canEditSuppliers =
+    isAdmin || role === "accountant";
+
   return (
     <div className="space-y-6">
       <div>
@@ -37,7 +64,63 @@ export default function MastersPage() {
         </p>
       </div>
 
-      <ProductsTab canEdit={role === "admin"} />
+      <Tabs defaultValue="products" className="space-y-6">
+        <div className="overflow-x-auto pb-1">
+          <TabsList className="h-auto min-w-max gap-1 rounded-xl border bg-white p-1.5">
+            <TabsTrigger
+              value="products"
+              className="gap-2 px-4 py-2.5"
+            >
+              <Package size={16} />
+              {t("Products")}
+            </TabsTrigger>
+
+            {canViewCustomers && (
+              <TabsTrigger
+                value="customers"
+                className="gap-2 px-4 py-2.5"
+              >
+                <Users size={16} />
+                {t("Customers")}
+              </TabsTrigger>
+            )}
+
+            <TabsTrigger
+              value="suppliers"
+              className="gap-2 px-4 py-2.5"
+            >
+              <Truck size={16} />
+              {t("Suppliers")}
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="materials"
+              className="gap-2 px-4 py-2.5"
+            >
+              <Boxes size={16} />
+              {t("Materials")}
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
+        <TabsContent value="products">
+          <ProductsTab canEdit={isAdmin} />
+        </TabsContent>
+
+        {canViewCustomers && (
+          <TabsContent value="customers">
+            <CustomersTab canEdit={isAdmin} />
+          </TabsContent>
+        )}
+
+        <TabsContent value="suppliers">
+          <SuppliersTab canEdit={canEditSuppliers} />
+        </TabsContent>
+
+        <TabsContent value="materials">
+          <MaterialsTab canEdit={isAdmin} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
