@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 
+
 export default function DashboardLayout({
   children,
 }: {

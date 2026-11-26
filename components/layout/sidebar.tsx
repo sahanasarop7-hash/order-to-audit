@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 
 import { BrandLogo } from "@/components/layout/brand-logo";
 import { useAuth } from "@/contexts/auth-context";
+import { useLanguage } from "@/contexts/language-context";
+
 import {
   NAVIGATION,
   ROLE_LABELS,
@@ -18,6 +20,7 @@ export function Sidebar({
 }) {
   const pathname = usePathname();
   const { profile } = useAuth();
+  const { t } = useLanguage();
 
   const role = profile?.role as Role;
 
@@ -38,7 +41,7 @@ export function Sidebar({
           return (
             <div key={group.title} className="mb-7">
               <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-                {group.title}
+                {t(group.title)}
               </p>
 
               <div className="space-y-1">
@@ -61,8 +64,13 @@ export function Sidebar({
                           : "text-slate-300 hover:bg-slate-800 hover:text-white"
                       }`}
                     >
-                      <Icon size={18} strokeWidth={1.8} />
-                      {item.label}
+                      <Icon
+                        size={18}
+                        strokeWidth={1.8}
+                        className="shrink-0"
+                      />
+
+                      <span>{t(item.label)}</span>
                     </Link>
                   );
                 })}
@@ -84,7 +92,7 @@ export function Sidebar({
             </p>
 
             <p className="text-xs text-slate-400">
-              {ROLE_LABELS[role]}
+              {t(ROLE_LABELS[role])}
             </p>
           </div>
         </div>

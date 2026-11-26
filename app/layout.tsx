@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Noto_Sans_Tamil,
+  Noto_Sans_Devanagari,
+} from "next/font/google";
 import { AuthProvider } from "@/contexts/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 import { BRAND } from "@/lib/brand";
+import { LanguageProvider } from "@/contexts/language-context";
 
 import "./globals.css";
 
@@ -14,6 +20,15 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+const tamilFont = Noto_Sans_Tamil({
+  variable: "--font-tamil",
+  subsets: ["tamil"],
+});
+
+const hindiFont = Noto_Sans_Devanagari({
+  variable: "--font-hindi",
+  subsets: ["devanagari"],
 });
 
 export const metadata: Metadata = {
@@ -32,12 +47,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${geistSans.className} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${geistSans.className} ${tamilFont.variable} ${hindiFont.variable}antialiased`}
       >
+      <LanguageProvider>
         <AuthProvider>
           {children}
           <Toaster position="top-right" richColors />
         </AuthProvider>
+      </LanguageProvider>
       </body>
     </html>
   );

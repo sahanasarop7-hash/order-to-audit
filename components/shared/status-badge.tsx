@@ -1,3 +1,8 @@
+"use client";
+
+import { useLanguage } from "@/contexts/language-context";
+
+
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-amber-50 text-amber-700 border-amber-200",
   draft: "bg-slate-100 text-slate-600 border-slate-200",
@@ -31,6 +36,8 @@ export function StatusBadge({
   status: string | null | undefined;
   label?: string;
 }) {
+  const { t } = useLanguage();
+
   const key = status?.toLowerCase() ?? "unknown";
 
   const style =
@@ -41,7 +48,11 @@ export function StatusBadge({
     <span
       className={`inline-flex whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-medium capitalize ${style}`}
     >
-      {label ?? key.replaceAll("_", " ")}
+      {label ?? (
+        t(key) === key
+        ? key.replaceAll("_", " ")
+        : t(key)
+      )}
     </span>
   );
 }

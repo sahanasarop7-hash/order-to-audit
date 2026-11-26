@@ -24,7 +24,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Sidebar } from "@/components/layout/sidebar";
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
+
 import { useAuth } from "@/contexts/auth-context";
+import { useLanguage } from "@/contexts/language-context";
+
 import {
   NAVIGATION,
   ROLE_LABELS,
@@ -34,7 +38,9 @@ import {
 export function Header() {
   const router = useRouter();
   const pathname = usePathname();
+
   const { profile, user, signOut } = useAuth();
+  const { t } = useLanguage();
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -87,9 +93,9 @@ export function Header() {
           </SheetContent>
         </Sheet>
 
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex min-w-0 items-center gap-2 text-sm">
           <span className="hidden text-slate-500 sm:inline">
-            Workspace
+            {t("Workspace")}
           </span>
 
           <span className="hidden text-slate-300 sm:inline">
@@ -97,12 +103,14 @@ export function Header() {
           </span>
 
           <span className="truncate font-medium text-slate-900">
-            {currentPage?.label ?? "Dashboard"}
+            {t(currentPage?.label ?? "Dashboard")}
           </span>
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-3">
+        <LanguageSwitcher />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -120,7 +128,7 @@ export function Header() {
                 </p>
 
                 <p className="text-xs text-slate-500">
-                  {ROLE_LABELS[profile?.role as Role]}
+                  {t(ROLE_LABELS[profile?.role as Role])}
                 </p>
               </div>
 
@@ -134,6 +142,7 @@ export function Header() {
           >
             <DropdownMenuLabel>
               <p>{profile?.full_name}</p>
+
               <p className="truncate text-xs font-normal text-slate-500">
                 {user?.email}
               </p>
@@ -146,7 +155,7 @@ export function Header() {
               className="text-red-600"
             >
               <LogOut className="mr-2 h-4 w-4" />
-              Sign out
+              {t("Sign out")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

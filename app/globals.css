@@ -140,3 +140,22 @@ select,
 textarea {
   font-family: inherit;
 }
+
+/* Consistent multilingual typography */
+
+html body {
+  font-family: var(--font-geist-sans, Arial),
+    Arial, sans-serif;
+}
+
+html[lang="ta"] body {
+  font-family: var(--font-geist-sans, Arial),
+    var(--font-tamil, sans-serif),
+    Arial, sans-serif;
+}
+
+html[lang="hi"] body {
+  font-family: var(--font-geist-sans, Arial),
+    var(--font-hindi, sans-serif),
+    Arial, sans-serif;
+}
