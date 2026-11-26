@@ -128,3 +128,15 @@
     @apply font-sans;
   }
 }
+/* Order2Audit global typography */
+html,
+body {
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
