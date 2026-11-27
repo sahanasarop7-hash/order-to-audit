@@ -6,8 +6,21 @@ A role-based manufacturing and business management application that connects sal
 
 Developed for the **NIT Tiruchirappalli Winter Internship 2026** assignment.
 
-**[Live Application](https://order-to-audit-opal.vercel.app/) | [Source Code](https://github.com/sahanasarop7-hash/order-to-audit) |
-[Technical Design Note (PDF)](docs/Order2Audit_Design_Note.pdf)**
+**[Live Application](https://order-to-audit-opal.vercel.app/) | [Source Code](https://github.com/sahanasarop7-hash/order-to-audit) | [Technical Design Note (PDF)](docs/Order2Audit_Design_Note.pdf) | [Demo Video](https://drive.google.com/file/d/1Yv7D6XJq6bScsp5IwmSU9UPIlIwSUkg4/view?usp=sharing)**
+
+## Live Demo Credentials
+
+| Email | Password | Role |
+|---|---|---|
+| admin@example.com | admin@19 | Administrator |
+| salesman.a@example.com | salesman@19 | Salesman A |
+| salesman.b@example.com | salesman@19 | Salesman B |
+| production@example.com | production@19 | Production Supervisor |
+| accountant@example.com | accountant@19 | Accountant |
+| owner@example.com | owner@19 | Owner |
+
+These dedicated accounts are intended for demonstration and evaluation only. Please preserve the benchmark data when reviewing the hosted application.
+
 ---
 
 ## 1. Problem Statement
@@ -46,6 +59,16 @@ The application focuses on accurate production accounting, stock reconciliation,
 - BOM versioning and protection of previously used recipes.
 - Responsive desktop and mobile layouts.
 
+### Assignment Feature Coverage
+
+| Requirement tier | Implemented coverage |
+|---|---|
+| Mandatory | Role-based authentication, masters and BOMs, mobile order entry, stock-validated approval, GST invoice PDF, production posting, variance analysis, stock summary and ledger, sales and stock report exports |
+| Should-have | Supplier purchases, payments and receivables ageing, production costing with overheads, GST summaries, variance alerts and owner dashboard |
+| Stretch and additional | Reorder alerts, Tamil and Hindi localization, read-only voice assistant, controlled reversals and audit history |
+
+Unimplemented stretch features are listed in Section 16.
+
 ## 3. Technology Stack
 
 | Layer | Technology |
@@ -61,6 +84,8 @@ The application focuses on accurate production accounting, stock reconciliation,
 | Voice Assistant | Web Speech API |
 | Deployment | Vercel |
 | Version Control | Git and GitHub |
+
+Next.js and TypeScript provide a maintainable responsive web application with typed business logic. PostgreSQL supports relational integrity, precise numeric calculations and transactional posting. Supabase provides authentication, database access and local development tooling. Vercel simplifies deployment, while the export libraries support accountant-friendly reports without requiring a separate reporting service.
 
 ## 4. System Architecture
 
@@ -216,6 +241,8 @@ Opening finished goods: 50 packets.
 8. Record a payment of ₹4,000 from Retailer A.
 9. Include ₹1,200 labour and ₹600 gas/power expenses in production costing.
 10. Generate monthly operational and financial reports.
+
+Labour and utility costs are entered during production and reviewed in the costing stage.
 
 ### Verified Benchmark Results
 
@@ -440,9 +467,13 @@ The hosted application is available at:
 
 https://order-to-audit-opal.vercel.app/
 
-Evaluator login credentials are provided separately with the internship submission.
+Use the preconfigured accounts listed in the [Live Demo Credentials](#live-demo-credentials) section above. No local setup is required to access the hosted application.
+
+**[Watch the Benchmark Demonstration Video](https://drive.google.com/file/d/1Yv7D6XJq6bScsp5IwmSU9UPIlIwSUkg4/view?usp=sharing)**
 
 The hosted demo contains the completed benchmark scenario. Select November 2026 when reviewing date-filtered benchmark reports.
+
+The demonstration video uses an independent local database to showcase the complete benchmark workflow from opening stock without modifying the hosted evaluation data.
 
 ## 15. Testing and Validation
 
