@@ -48,3 +48,6 @@ next-env.d.ts
 
 # Translation audit output
 /translation-audit.json
+
+# Local Supabase Studio snippets
+/supabase/snippets/
