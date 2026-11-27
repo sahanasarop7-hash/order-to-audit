@@ -6,8 +6,8 @@ A role-based manufacturing and business management application that connects sal
 
 Developed for the **NIT Tiruchirappalli Winter Internship 2026** assignment.
 
-**[Live Application](https://order-to-audit-opal.vercel.app/) | [Source Code](https://github.com/sahanasarop7-hash/order-to-audit)**
-**[Technical Design Note (PDF)](docs/Order2Audit_Design_Note.pdf)**
+**[Live Application](https://order-to-audit-opal.vercel.app/) | [Source Code](https://github.com/sahanasarop7-hash/order-to-audit) |
+[Technical Design Note (PDF)](docs/Order2Audit_Design_Note.pdf)**
 ---
 
 ## 1. Problem Statement
