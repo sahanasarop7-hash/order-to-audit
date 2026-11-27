@@ -42,3 +42,9 @@ next-env.d.ts
 
 # Private database backups
 /backups/
+
+# Public environment template
+!.env.example
+
+# Translation audit output
+/translation-audit.json

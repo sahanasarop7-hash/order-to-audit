@@ -3296,6 +3296,237 @@ $$;
 ALTER FUNCTION "public"."secure_reverse_purchase"("p_purchase_id" bigint, "p_reason" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."secure_save_bom"("p_product_id" bigint, "p_expected_output" integer, "p_items" "jsonb", "p_is_active" boolean DEFAULT true, "p_bom_id" bigint DEFAULT NULL::bigint) RETURNS bigint
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public', 'pg_temp'
+    AS $$
+DECLARE
+    v_bom_id BIGINT;
+    v_version INTEGER;
+    v_existing_product_id BIGINT;
+    v_item JSONB;
+    v_material_id BIGINT;
+    v_quantity NUMERIC;
+    v_unit TEXT;
+BEGIN
+
+    -- 1. Check user permissions.
+
+    IF NOT public.has_role(
+        ARRAY['admin', 'production']
+    ) THEN
+        RAISE EXCEPTION 'Permission denied';
+    END IF;
+
+
+    -- 2. Validate basic inputs.
+
+    IF p_product_id IS NULL THEN
+        RAISE EXCEPTION 'Product is required';
+    END IF;
+
+    IF p_expected_output IS NULL
+       OR p_expected_output <= 0 THEN
+        RAISE EXCEPTION
+            'Expected output must be greater than zero';
+    END IF;
+
+    IF p_is_active IS NULL THEN
+        RAISE EXCEPTION 'Active status is required';
+    END IF;
+
+    IF p_items IS NULL
+       OR jsonb_typeof(p_items) <> 'array' THEN
+        RAISE EXCEPTION 'Invalid BOM materials';
+    END IF;
+
+    IF jsonb_array_length(p_items) = 0 THEN
+        RAISE EXCEPTION
+            'At least one material is required';
+    END IF;
+
+
+    -- 3. Lock an existing BOM before editing.
+
+    IF p_bom_id IS NOT NULL THEN
+
+        SELECT product_id
+        INTO v_existing_product_id
+        FROM boms
+        WHERE id = p_bom_id
+        FOR UPDATE;
+
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'BOM not found';
+        END IF;
+
+        IF v_existing_product_id <> p_product_id THEN
+            RAISE EXCEPTION
+                'Product cannot be changed for an existing BOM';
+        END IF;
+
+        IF EXISTS (
+            SELECT 1
+            FROM production_runs
+            WHERE bom_id = p_bom_id
+        ) THEN
+            RAISE EXCEPTION
+                'Used BOM cannot be modified. Create a new version.';
+        END IF;
+
+    END IF;
+
+
+    -- 4. Validate and lock the product.
+
+    PERFORM id
+    FROM products
+    WHERE id = p_product_id
+      AND is_active = TRUE
+    FOR UPDATE;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION
+            'Product not found or inactive';
+    END IF;
+
+
+    -- 5. Validate every material.
+
+    FOR v_item IN
+        SELECT value
+        FROM jsonb_array_elements(p_items)
+        ORDER BY (value->>'inventory_item_id')::BIGINT
+    LOOP
+
+        v_material_id :=
+            (v_item->>'inventory_item_id')::BIGINT;
+
+        v_quantity :=
+            (v_item->>'planned_quantity')::NUMERIC;
+
+        IF v_material_id IS NULL THEN
+            RAISE EXCEPTION 'Material is required';
+        END IF;
+
+        IF v_quantity IS NULL
+           OR v_quantity::TEXT IN (
+               'NaN', 'Infinity', '-Infinity'
+           )
+           OR v_quantity <= 0 THEN
+
+            RAISE EXCEPTION
+                'Planned quantity must be greater than zero';
+
+        END IF;
+
+        IF v_quantity <> ROUND(v_quantity, 3) THEN
+            RAISE EXCEPTION
+                'Quantity supports up to three decimal places';
+        END IF;
+
+        SELECT unit
+        INTO v_unit
+        FROM inventory_items
+        WHERE id = v_material_id
+          AND is_active = TRUE
+        FOR SHARE;
+
+        IF NOT FOUND THEN
+            RAISE EXCEPTION
+                'Material % not found or inactive',
+                v_material_id;
+        END IF;
+
+        IF v_unit = 'piece'
+           AND v_quantity <> TRUNC(v_quantity) THEN
+
+            RAISE EXCEPTION
+                'Piece quantities must be whole numbers';
+
+        END IF;
+
+    END LOOP;
+
+
+    -- 6. Prevent duplicate materials.
+
+    IF EXISTS (
+        SELECT 1
+        FROM jsonb_array_elements(p_items) AS item
+        GROUP BY (item->>'inventory_item_id')::BIGINT
+        HAVING COUNT(*) > 1
+    ) THEN
+
+        RAISE EXCEPTION
+            'Duplicate materials are not allowed';
+
+    END IF;
+
+
+    -- 7. Create or update the BOM header.
+
+    IF p_bom_id IS NULL THEN
+
+        SELECT COALESCE(MAX(version), 0) + 1
+        INTO v_version
+        FROM boms
+        WHERE product_id = p_product_id;
+
+        INSERT INTO boms (
+            product_id,
+            expected_output,
+            version,
+            is_active
+        )
+        VALUES (
+            p_product_id,
+            p_expected_output,
+            v_version,
+            p_is_active
+        )
+        RETURNING id INTO v_bom_id;
+
+    ELSE
+
+        v_bom_id := p_bom_id;
+
+        UPDATE boms
+        SET expected_output = p_expected_output,
+            is_active = p_is_active
+        WHERE id = v_bom_id;
+
+        DELETE FROM bom_items
+        WHERE bom_id = v_bom_id;
+
+    END IF;
+
+
+    -- 8. Save all recipe materials.
+
+    INSERT INTO bom_items (
+        bom_id,
+        inventory_item_id,
+        planned_quantity
+    )
+    SELECT
+        v_bom_id,
+        (item->>'inventory_item_id')::BIGINT,
+        (item->>'planned_quantity')::NUMERIC
+    FROM jsonb_array_elements(p_items) AS item;
+
+
+    -- 9. Return the saved BOM ID.
+
+    RETURN v_bom_id;
+
+END;
+$$;
+
+
+ALTER FUNCTION "public"."secure_save_bom"("p_product_id" bigint, "p_expected_output" integer, "p_items" "jsonb", "p_is_active" boolean, "p_bom_id" bigint) OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."secure_save_order"("p_customer_id" bigint, "p_items" "jsonb", "p_order_id" bigint DEFAULT NULL::bigint, "p_salesman_id" "uuid" DEFAULT NULL::"uuid") RETURNS bigint
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO 'public', 'pg_temp'
@@ -4023,6 +4254,78 @@ $$;
 
 
 ALTER FUNCTION "public"."secure_save_purchase"("p_supplier_id" bigint, "p_invoice_number" "text", "p_purchase_date" "date", "p_items" "jsonb", "p_purchase_id" bigint) OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."secure_set_bom_active"("p_bom_id" bigint, "p_is_active" boolean) RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public', 'pg_temp'
+    AS $$
+DECLARE
+    v_product_id BIGINT;
+BEGIN
+    IF NOT public.has_role(
+        ARRAY['admin', 'production']
+    ) THEN
+        RAISE EXCEPTION 'Permission denied';
+    END IF;
+
+    IF p_is_active IS NULL THEN
+        RAISE EXCEPTION 'Active status is required';
+    END IF;
+
+    SELECT product_id
+    INTO v_product_id
+    FROM boms
+    WHERE id = p_bom_id
+    FOR UPDATE;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'BOM not found';
+    END IF;
+
+    IF p_is_active THEN
+
+        PERFORM id
+        FROM products
+        WHERE id = v_product_id
+          AND is_active = TRUE
+        FOR SHARE;
+
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Product is inactive';
+        END IF;
+
+        IF NOT EXISTS (
+            SELECT 1
+            FROM bom_items
+            WHERE bom_id = p_bom_id
+        ) THEN
+            RAISE EXCEPTION 'BOM has no materials';
+        END IF;
+
+        IF EXISTS (
+            SELECT 1
+            FROM bom_items bi
+            JOIN inventory_items i
+                ON i.id = bi.inventory_item_id
+            WHERE bi.bom_id = p_bom_id
+              AND i.is_active = FALSE
+        ) THEN
+            RAISE EXCEPTION
+                'BOM contains inactive materials';
+        END IF;
+
+    END IF;
+
+    UPDATE boms
+    SET is_active = p_is_active
+    WHERE id = p_bom_id;
+
+END;
+$$;
+
+
+ALTER FUNCTION "public"."secure_set_bom_active"("p_bom_id" bigint, "p_is_active" boolean) OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."secure_stock_period_report"("p_start_date" "date", "p_end_date" "date") RETURNS TABLE("sku" "text", "item_name" "text", "category" "text", "unit" "text", "opening_stock" numeric, "receipts" numeric, "issues" numeric, "adjustments" numeric, "closing_stock" numeric)
@@ -4848,6 +5151,8 @@ CREATE TABLE IF NOT EXISTS "public"."inventory_items" (
     "average_unit_cost" numeric(16,6) DEFAULT 0 NOT NULL,
     "is_active" boolean DEFAULT true NOT NULL,
     "reorder_level" numeric(12,3) DEFAULT 0 NOT NULL,
+    "name_ta" "text",
+    "name_hi" "text",
     CONSTRAINT "inventory_items_average_unit_cost_check" CHECK (("average_unit_cost" >= (0)::numeric)),
     CONSTRAINT "inventory_items_category_check" CHECK (("category" = ANY (ARRAY['raw_material'::"text", 'packaging'::"text"]))),
     CONSTRAINT "inventory_items_reorder_level_check" CHECK (("reorder_level" >= (0)::numeric)),
@@ -4983,6 +5288,8 @@ CREATE TABLE IF NOT EXISTS "public"."products" (
     "packets_per_carton" integer,
     "is_active" boolean DEFAULT true NOT NULL,
     "reorder_level" integer DEFAULT 0 NOT NULL,
+    "name_ta" "text",
+    "name_hi" "text",
     CONSTRAINT "product_gst_rate_valid" CHECK ((("gst_rate" >= (0)::numeric) AND ("gst_rate" <= (100)::numeric))),
     CONSTRAINT "product_name_not_empty" CHECK (("btrim"("name") <> ''::"text")),
     CONSTRAINT "product_sku_not_empty" CHECK (("btrim"("sku") <> ''::"text")),
@@ -6579,6 +6886,11 @@ GRANT ALL ON FUNCTION "public"."secure_reverse_purchase"("p_purchase_id" bigint,
 
 
 
+REVOKE ALL ON FUNCTION "public"."secure_save_bom"("p_product_id" bigint, "p_expected_output" integer, "p_items" "jsonb", "p_is_active" boolean, "p_bom_id" bigint) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."secure_save_bom"("p_product_id" bigint, "p_expected_output" integer, "p_items" "jsonb", "p_is_active" boolean, "p_bom_id" bigint) TO "authenticated";
+
+
+
 REVOKE ALL ON FUNCTION "public"."secure_save_order"("p_customer_id" bigint, "p_items" "jsonb", "p_order_id" bigint, "p_salesman_id" "uuid") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."secure_save_order"("p_customer_id" bigint, "p_items" "jsonb", "p_order_id" bigint, "p_salesman_id" "uuid") TO "authenticated";
 
@@ -6591,6 +6903,11 @@ GRANT ALL ON FUNCTION "public"."secure_save_production"("p_batch_number" "text",
 
 REVOKE ALL ON FUNCTION "public"."secure_save_purchase"("p_supplier_id" bigint, "p_invoice_number" "text", "p_purchase_date" "date", "p_items" "jsonb", "p_purchase_id" bigint) FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."secure_save_purchase"("p_supplier_id" bigint, "p_invoice_number" "text", "p_purchase_date" "date", "p_items" "jsonb", "p_purchase_id" bigint) TO "authenticated";
+
+
+
+REVOKE ALL ON FUNCTION "public"."secure_set_bom_active"("p_bom_id" bigint, "p_is_active" boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."secure_set_bom_active"("p_bom_id" bigint, "p_is_active" boolean) TO "authenticated";
 
 
 
@@ -6630,12 +6947,12 @@ GRANT SELECT ON TABLE "public"."audit_logs" TO "authenticated";
 
 
 GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."bom_items" TO "service_role";
-GRANT SELECT,INSERT,UPDATE ON TABLE "public"."bom_items" TO "authenticated";
+GRANT SELECT ON TABLE "public"."bom_items" TO "authenticated";
 
 
 
 GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."boms" TO "service_role";
-GRANT SELECT,INSERT,UPDATE ON TABLE "public"."boms" TO "authenticated";
+GRANT SELECT ON TABLE "public"."boms" TO "authenticated";
 
 
 
@@ -6942,8 +7259,6 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUN
 
 
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "postgres";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLES TO "anon";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLES TO "authenticated";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLES TO "service_role";
 
 
@@ -6952,3 +7267,8 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT REFERENCES
 
 
 
+
+-- Prevent client roles from truncating tables or creating triggers.
+REVOKE TRUNCATE, TRIGGER, REFERENCES ON ALL TABLES IN SCHEMA public FROM anon, authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public REVOKE TRUNCATE, TRIGGER, REFERENCES ON TABLES FROM anon, authenticated;
+RESET ALL;
